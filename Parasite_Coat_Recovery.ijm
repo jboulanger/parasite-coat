@@ -1,4 +1,5 @@
 //@File(label="Input",description="Input dataset tif or csv file, use 'image' to run on current image",value="image") path
+//@Float(label="parasite id",value=1) parasite_id
 //@Float(label="start time [min]",value=23) start_time
 //@Float(label="first frame [frame]",value=23) first_frame
 //@Boolean(label="Use shell") use_shell
@@ -389,7 +390,7 @@ function getNumericalAperture() {
 }
 
 
-function graphAndFit(img, name, start_time, first_frame) {
+function graphAndFit(parasite_id, img, name, start_time, first_frame) {
 	/* Create a graph and fit a model to the intensity recovery
 	 *  - name: image name
 	 *  - correct_bleaching: boolean which models
@@ -476,6 +477,7 @@ function graphAndFit(img, name, start_time, first_frame) {
 	} 
 	selectWindow("summary.csv");
 	nrow = Table.size;
+	Table.set("Parasite", nrow, parasite_id);
 	Table.set("Image", nrow, name);
 	Table.set("Start time [min]", nrow,  start_time);
 	Table.set("First frame", nrow,  first_frame);
@@ -495,7 +497,7 @@ function graphAndFit(img, name, start_time, first_frame) {
 	camera = getCameraName();
 	objective = getObjectiveName();
 	na = getNumericalAperture();
-	selectWindow("Summary");
+	selectWindow("summary.csv");
 	Table.set("Image width", nrow, width);
 	Table.set("Image height", nrow, height);
 	Table.set("Image slices", nrow, slices);
@@ -540,11 +542,11 @@ function saveAndFinish(img, shell, path) {
 		run("16-bit");
 		run("Split Channels");
 		run("Merge Channels...","c1=[C1-"+c+"] c2=[C2-"+c+"] c3=["+c3+"]");
-		saveAs("TIFF", folder + File.separator + fname + "-mask.tif");
+		saveAs("TIFF", folder + File.separator + fname + "-mask.tif");		
 	}
 }
 
-function processImage(path, start_time, first_frame) {
+function processImage(parasite_id, path, start_time, first_frame) {
 	/* Process the current image or a file */
 	img = getDataSet(path);
 	name = getTitle();
@@ -555,7 +557,7 @@ function processImage(path, start_time, first_frame) {
 	print("- Intensity measurement");
 	recordIntensity(shell, img, start_time, first_frame);
 	print("- Model fitting");
-	graphAndFit(img, name, start_time, first_frame);
+	graphAndFit(parasite_id, img, name, start_time, first_frame);
 	saveAndFinish(img, shell, path);
 }
 
@@ -571,14 +573,16 @@ function main() {
 		nrows = Table.size;
 		for (row = 0; row < nrows; row++) {
 			selectWindow(filelist);
+			parasite_id = Table.getString("Parasite", row);
 			fname = Table.getString("Filename", row);
 			start_time = Table.get("Start time [min]", row);
 			first_frame = Table.get("First frame", row);
 			print(fname, start_time, first_frame);
-			processImage(folder + File.separator + fname, start_time, first_frame);
+			processImage(parasite_id, folder + File.separator + fname, start_time, first_frame);
+			File.saveString("filelist: "+path+"\nsummary: "+folder + File.separator + "summary.csv", folder+File.separator +"config.yml");
 		}
 	} else {
-		processImage(path, start_time, first_frame);
+		processImage(parasite_id, path, start_time, first_frame);
 	}
 	setBatchMode("exit and display");
 	toc = getTime();
