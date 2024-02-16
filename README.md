@@ -8,13 +8,24 @@ Tools to analyze the fluorescence recovery of parasite coat protein from 3D time
 - data: folder with example data
 
 ## Requirements
+The analysis of the data requires the installation of two components and should take less than 15min.
+
 * For running the analysis macro please install:
-    - Fiji (https://fiji.sc/)
+    - Fiji (https://fiji.sc/) v1.54f
     - MorpholibJ (https://github.com/ijpb/MorphoLibJ) can be installed by activating the IJPB-plugins update site.
     - Download the [macro](https://raw.githubusercontent.com/jboulanger/parasite-coat/main/Parasite_Coat_Recovery.ijm) and open it in Fiji.
-* Dependencies for running the notebook can be installed using:
+* Dependencies for running the notebook can be installed using for example on macOS, Linux, or Git Bash on Window:
 ```bash
-conda create -n parasite-coat -c conda-forge python numpy scipy matplotlib jupyterlab pyyaml pandas seaborn openpyxl
+# install micromamba
+"${SHELL}" <(curl -L micro.mamba.pm/install.sh)
+# reload the shell
+${SHELL}
+# create an environment
+micromamba -qy create -f environment.yml
+# activate the environment 
+micromamba activate parasite-coat
+# start the notebook
+jupyter lab "Analyze Results.csv"
 ```
 
 ## Usage
@@ -32,9 +43,8 @@ conda create -n parasite-coat -c conda-forge python numpy scipy matplotlib jupyt
 ## Demo
 Sample images can be downloaded from the data folder along with the list of images as a csv file. 
 
-Open and run the macro selecting the csv file as input and press run. 
-
-The open the notebook, set the
+1. Open and run the macro selecting the csv file as input and press run. 
+2. The open the notebook and run all the cells.
 
 
 
